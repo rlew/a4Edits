@@ -21,9 +21,11 @@ typedef struct Closure {
 extern void compTrimPixmap(Pnm_ppm image);
 extern void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
                                 A2Methods_Object* ptr, void* cl);
-extern void compToRGBFloat(A2 floatArray, struct Closure* cl);
+extern void applyCompToYPP(int col, int row, A2 toBeFilled, A2Methods_Object*
+    ptr, void* cl);
 
 /* Decompression functions */
 extern void applyDecompToRGBInt(int col, int row, A2 toBeFilled,
     A2Methods_Object* ptr, void* cl);
-extern void decompToRGBInt(A2 intArray, struct Closure* cl);
+extern void applyDecompToRGBFloat(int col, int row, A2 toBeFilled,
+    A2Methods_Object* ptr, void* cl);

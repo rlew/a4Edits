@@ -9,12 +9,12 @@
 #include "applyCompOrDecomp.h"
 
 
-/* this fn only works with FLOATS */
+/* this fn only works with YPP */
 static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     void* cl) {
     (void) col; (void) row; (void) array; (void) cl;
-    struct rgbFloat* elem = ptr;
-    fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
+    struct YPP* elem = ptr;
+    fprintf(stdout, "%f %f %f ", elem->y, elem->pb, elem->pr);
 }
 
 static void compWrite(A2 array, A2Methods_T methods) {
@@ -54,9 +54,18 @@ void compress40(FILE *input) {
     A2 floatArray = methods->new(image->width, image->height,
                                  sizeof(struct rgbFloat));
     struct Closure cl = { methods, image->pixels, image->denominator };
-    compToRGBFloat(floatArray, &cl);
+    methods->map_default(floatArray, applyCompToRGBFloat, &cl);
 
-    compWrite(floatArray, methods);
+    A2 yppArray = methods->new(methods->width(floatArray),
+                               methods->height(floatArray),
+                               sizeof(struct YPP));
+    cl.array = floatArray;
+    methods->map_default(yppArray, applyCompToYPP, &cl);
+
+    
+
+    compWrite(yppArray, methods);
+    methods->free(&yppArray);
     methods->free(&floatArray);
     Pnm_ppmfree(&image);
 }
@@ -65,20 +74,17 @@ void compress40(FILE *input) {
 
 /*---------------------------------------------------------------------------*/
 
-static void fillFloatArray(int col, int row, A2 array, A2Methods_Object* ptr,
+/* this function only works with YPP */
+static void fillToReadArray(int col, int row, A2 array, A2Methods_Object* ptr,
     void* cl) {
     (void) col; (void) row; (void) array;
     FILE* input = cl;
-    struct rgbFloat* curpix = ptr;
-    struct rgbFloat elem;
-    fscanf(input, "%f", &elem.red);
-    fscanf(input, "%f", &elem.green); 
-    fscanf(input, "%f", &elem.blue);
+    struct YPP* curpix = ptr;
+    struct YPP elem;
+    fscanf(input, "%f", &elem.y);
+    fscanf(input, "%f", &elem.pb); 
+    fscanf(input, "%f", &elem.pr);
     *curpix = elem;
-}
-
-static void decompRead(FILE* input, A2 floatArray, A2Methods_T methods) {
-    methods->map_default(floatArray, fillFloatArray, input);
 }
 
 void decompress40(FILE *input) { 
@@ -103,12 +109,16 @@ void decompress40(FILE *input) {
     int c = getc(input);
     assert(c == '\n');
 
+    A2 yppArray = methods->new(width, height, sizeof(struct YPP));
+    methods->map_default(yppArray, fillToReadArray, input);
+
     A2 floatArray = methods->new(width, height, sizeof(struct rgbFloat));
-    decompRead(input, floatArray, methods);
+    struct Closure cl = { methods, yppArray, 255 };
+    methods->map_default(floatArray, applyDecompToRGBFloat, &cl);
 
     A2 intArray = methods->new(width, height, sizeof(struct Pnm_rgb));
-    struct Closure cl = { methods, floatArray, 255 };
-    decompToRGBInt(intArray, &cl);
+    cl.array = floatArray;
+    methods->map_default(intArray, applyDecompToRGBInt, &cl);
     
     Pnm_ppm output;
     NEW(output);
@@ -121,5 +131,6 @@ void decompress40(FILE *input) {
     Pnm_ppmwrite(stdout, output);
     
     methods->free(&floatArray);
+    methods->free(&yppArray);
     Pnm_ppmfree(&output);
 }

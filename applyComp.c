@@ -22,8 +22,17 @@ void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
     toBeSet->blue = (float)(original->blue) / denom;
 }
 
-/* This is a unessesary wrapper funciton */
-void compToRGBFloat(A2 floatArray, struct Closure* cl) {
-    cl->methods->map_default(floatArray, applyCompToRGBFloat, cl);
+void applyCompToYPP(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
+    void* cl) {
+    (void) toBeFilled;
+    struct Closure* mycl = cl;
+    struct YPP* toBeSet = ptr;
+    struct rgbFloat* original = mycl->methods->at(mycl->array, col, row);
+    toBeSet->y = 0.299 * original->red + 0.587 * original->green + 0.114 *
+        original->blue;
+    toBeSet->pb = -0.168736 * original->red - 0.331264 * original->green +
+        0.5 * original->blue;
+    toBeSet->pr = 0.5 * original->red - 0.418688 * original->green - 
+        0.081312 * original->blue;
 }
 
