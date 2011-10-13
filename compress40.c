@@ -17,6 +17,7 @@ static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
 }
 
+/* writes the array usray to std output using maping fn */
 static void compWrite(A2 array, A2Methods_T methods) {
     unsigned height = (unsigned)methods->height(array); 
     unsigned width = (unsigned)methods->width(array);
@@ -64,7 +65,7 @@ void compress40(FILE *input) {
 
 
 /*---------------------------------------------------------------------------*/
-
+/* filing a float array from std input */
 static void fillFloatArray(int col, int row, A2 array, A2Methods_Object* ptr,
     void* cl) {
     (void) col; (void) row; (void) array;
@@ -76,7 +77,7 @@ static void fillFloatArray(int col, int row, A2 array, A2Methods_Object* ptr,
     fscanf(input, "%f", &elem.blue);
     *curpix = elem;
 }
-
+/* testing wrapper fn */
 static void decompRead(FILE* input, A2 floatArray, A2Methods_T methods) {
     methods->map_default(floatArray, fillFloatArray, input);
 }
