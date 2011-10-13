@@ -9,7 +9,7 @@ void compTrimPixmap(Pnm_ppm image) {
       image->height -= 1;
     }
 }
-
+/* Compression: takes the integer array and float array */
 void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
                                 A2Methods_Object* ptr, void* cl) {
     (void) toBeFilled;
@@ -22,8 +22,8 @@ void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
     toBeSet->blue = (float)(original->blue) / denom;
 }
 
+/* This is a unessesary wrapper funciton */
 void compToRGBFloat(A2 floatArray, struct Closure* cl) {
-    //map(floatArray, applyCompToRGBFloat, cl);
     cl->methods->map_default(floatArray, applyCompToRGBFloat, cl);
 }
 
