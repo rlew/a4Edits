@@ -1,5 +1,6 @@
 #include "applyCompOrDecomp.h"
 #include <math.h>
+#include "arith40.h"
 
 /* Compression: trimming the image dimesnions to make them even. */
 void compTrimPixmap(Pnm_ppm image) {
@@ -11,7 +12,7 @@ void compTrimPixmap(Pnm_ppm image) {
     }
 }
 /* Compression: void *ptr is a struct of rgbFloat's to be filled with the
- * calculations preformed on the rgbFloat array inthe closure. */
+ * calculations preformed on the Pnm_rgb array in the closure. */
 void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
                                 void* ptr, void* cl) {
     (void) toBeFilled;

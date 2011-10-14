@@ -9,9 +9,9 @@ void applyDecompToRGBInt(int col, int row, A2 toBeFilled,
     struct Pnm_rgb* decomped = ptr;
     struct rgbFloat* original = mycl->methods->at(mycl->array,col, row);
     unsigned denominator = mycl->denom;
-    decomped->red = (original->red) * denominator;
-    decomped->green = (original->green) * denominator;
-    decomped->blue = (original->blue) * denominator;
+    decomped->red = original->red * denominator;
+    decomped->green = original->green * denominator;
+    decomped->blue = original->blue * denominator;
 }
 
 /* Decompression: void* ptr is a struct of rgbFloat to be filled with the

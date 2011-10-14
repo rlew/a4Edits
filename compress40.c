@@ -9,9 +9,8 @@
 #include "applyCompOrDecomp.h"
 
 
-#define DENOM 256
+#define DENOM 254
 
-/* this fn only works with AVG and DCT structs */
 static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     void* cl) {
     (void) col; (void) row; (void) array; (void) cl;
@@ -19,8 +18,8 @@ static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     /*struct AvgDCT* elem = ptr;
     struct YPP* elem = ptr;
     struct AvgDCTScaled* elem = ptr;
-    */
-    
+    */  
+
     fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
     /*
     fprintf(stdout, "%d %d %d %d %d %d\n", elem->pb, elem->pr, elem->a,
@@ -29,18 +28,18 @@ static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     fprintf(stdout, "%f %f %f %f %f %f\n", elem->pb, elem->pr, elem->a,
                                        elem->b, elem->c, elem->d);
     */
-    
+
 }
 
 static void compWrite(A2 array, A2Methods_T methods) {
-    unsigned height = (unsigned)methods->height(array); 
+    unsigned height = (unsigned)methods->height(array);
     unsigned width = (unsigned)methods->width(array);
     fprintf(stdout, "COMP40 Compressed image format 2\n%u %u\n", width,
         height);
     methods->map_default(array, applyCompPrint, NULL);
 }
 
-void compress40(FILE *input) { 
+void compress40(FILE *input) {
     A2Methods_T methods = uarray2_methods_plain;
     assert(methods);
     A2Methods_mapfun *map = methods->map_default;
@@ -72,26 +71,27 @@ void compress40(FILE *input) {
     struct Closure cl = { methods, image->pixels, image->denominator };
     methods->map_default(floatArray, applyCompToRGBFloat, &cl);
 
-    /* Convert from rgbFloat to YPP */
+    /* Convert from rgbFloat to YPP 
     A2 yppArray = methods->new(methods->width(floatArray),
                                methods->height(floatArray),
                                sizeof(struct YPP));
     cl.array = floatArray;
     methods->map_default(yppArray, applyCompToYPP, &cl);
 
-    /* Convert from YPP to AvgDCT*/
-    A2 avgDCTArray = methods->new((methods->width(yppArray))/2, 
+    // Convert from YPP to AvgDCT
+    A2 avgDCTArray = methods->new((methods->width(yppArray))/2,
                                   (methods->height(yppArray))/2,
                                   sizeof(struct AvgDCT));
     cl.array = yppArray;
     methods->map_default(avgDCTArray, applyCompToAvgDCT, &cl);
 
-    /* Convert from AvgDCT to AvgDCTScaled */
+    // Convert from AvgDCT to AvgDCTScaled
     A2 avgDCTScaledArray = methods->new(methods->width(avgDCTArray),
                                         methods->height(avgDCTArray),
                                         sizeof(struct AvgDCTScaled));
     cl.array = avgDCTArray;
     methods->map_default(avgDCTScaledArray, applyCompToAvgDCTScaled, &cl);
+    */
 
     /* Writing functions to stdout */
 /*    compWrite(avgDCTScaledArray, methods);
@@ -100,9 +100,9 @@ void compress40(FILE *input) {
     compWrite(floatArray, methods);
 
     /* Freeing functions */
-    methods->free(&avgDCTScaledArray);
+    /*methods->free(&avgDCTScaledArray);
     methods->free(&avgDCTArray);
-    methods->free(&yppArray);
+    methods->free(&yppArray);*/
     methods->free(&floatArray);
     Pnm_ppmfree(&image);
 }
@@ -122,6 +122,11 @@ static void fillToReadArray(int col, int row, A2 array, A2Methods_Object* ptr,
     struct AvgDCTScaled* curpix = ptr;
     struct YPP* curpix = ptr;
     struct AvgDCT* curpix = ptr;
+    */
+    struct rgbFloat elem;
+    /*
+    struct YPP elem;
+    struct AvgDCTScaled elem;
     struct AvgDCT elem;
     */
 
