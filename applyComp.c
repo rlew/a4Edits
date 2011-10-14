@@ -1,7 +1,7 @@
 #include "applyCompOrDecomp.h"
 #include <math.h>
 
-/* Compression: trimming the image dimesnions to make them even */
+/* Compression: trimming the image dimesnions to make them even. */
 void compTrimPixmap(Pnm_ppm image) {
     if(image->width % 2 != 0) {
       image->width -= 1;
@@ -10,7 +10,8 @@ void compTrimPixmap(Pnm_ppm image) {
       image->height -= 1;
     }
 }
-/* Compression: takes the integer array and float array */
+/* Compression: void *ptr is a struct of rgbFloat's to be filled with the
+ * calculations preformed on the rgbFloat array inthe closure. */
 void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
                                 void* ptr, void* cl) {
     (void) toBeFilled;
@@ -23,22 +24,24 @@ void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
     toBeSet->blue = (float)(original->blue) / denom;
 }
 
+/* Compression: void *ptr is a struct of YPP to be filled with the calculations
+ * preformed on the rgbFloat array in the closure.*/
 void applyCompToYPP(int col, int row, A2 toBeFilled, void* ptr,
-    void* cl) {
+                                                          void* cl) {
     (void) toBeFilled;
     struct Closure* mycl = cl;
     struct YPP* toBeSet = ptr;
     struct rgbFloat* original = mycl->methods->at(mycl->array, col, row);
-    toBeSet->y = 0.299 * original->red + 0.587 * original->green + 0.114 *
-        original->blue;
-    toBeSet->pb = -0.168736 * original->red - 0.331264 * original->green +
-        0.5 * original->blue;
-    toBeSet->pr = 0.5 * original->red - 0.418688 * original->green - 
-        0.081312 * original->blue;
+    toBeSet->y = 0.299 * original->red + 0.587 * original->green
+                                                    + 0.114 * original->blue;
+    toBeSet->pb = -0.168736 * original->red - 0.331264 * original->green
+                                                      + 0.5 * original->blue;
+    toBeSet->pr = 0.5 * original->red - 0.418688 * original->green
+                                                  - 0.081312 * original->blue;
 }
 
-/* void *ptr is a struct of AvgDCT to be filled with the calculations
- * performed on the YPP array in the closure */
+/* Compression: void *ptr is a struct of AvgDCT to be filled with the
+ * calculations performed on the YPP array in the closure */
 void applyCompToAvgDCT(int col, int row, A2 toBeFilled, void* ptr,
     void* cl) {
     (void) toBeFilled;
@@ -47,7 +50,7 @@ void applyCompToAvgDCT(int col, int row, A2 toBeFilled, void* ptr,
     struct YPP* original1 = mycl->methods->at(mycl->array, col*2, row*2);
     struct YPP* original2 = mycl->methods->at(mycl->array, col*2 + 1, row*2);
     struct YPP* original3 = mycl->methods->at(mycl->array, col*2, row*2+1);
-    struct YPP* original4 = mycl->methods->at(mycl->array, col*2 + 1, 
+    struct YPP* original4 = mycl->methods->at(mycl->array, col*2 + 1,
         row*2 + 1);
     toBeSet->pb = (original1->pb + original2->pb + original3->pb +
         original4->pb) / 4.0;
@@ -63,6 +66,8 @@ void applyCompToAvgDCT(int col, int row, A2 toBeFilled, void* ptr,
         original4->y) / 4.0;
 }
 
+/* Compression: converts the arguments of floats and returns a scaled integer in
+ * the range of plus or minus 15. */
 static int convertToScaledInt(float num) {
     int returnIndex = 0;
     float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
@@ -78,6 +83,8 @@ static int convertToScaledInt(float num) {
     return returnIndex - 15;
 }
 
+/* Compression: void *ptr is a struct of AvgDCT to be filled with the
+ * calculations preformed on the AvgDCTScalled array in the closure. */
 void applyCompToAvgDCTScaled(int col, int row, A2 toBeFilled, void* ptr,
     void* cl) {
     (void) toBeFilled;
