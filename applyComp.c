@@ -36,3 +36,26 @@ void applyCompToYPP(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
         0.081312 * original->blue;
 }
 
+void applyCompToAvgDCT(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
+    void* cl) {
+    (void) toBeFilled;
+    struct Closure* mycl = cl;
+    struct AvgDCT* toBeSet = ptr;
+    struct YPP* original1 = mycl->methods->at(mycl->array, col*2, row*2);
+    struct YPP* original2 = mycl->methods->at(mycl->array, col*2 + 1, row*2);
+    struct YPP* original3 = mycl->methods->at(mycl->array, col*2, row*2+1);
+    struct YPP* original4 = mycl->methods->at(mycl->array, col*2 + 1, 
+        row*2 + 1);
+    toBeSet->pb = (original1->pb + original2->pb + original3->pb +
+        original4->pb) / 4.0;
+    toBeSet->pr = (original1->pr + original2->pr + original3->pr +
+        original4->pr) / 4.0;
+    toBeSet->a = (original1->y + original2->y + original3->y +
+        original4->y) / 4.0;
+    toBeSet->b = (-original1->y - original2->y + original3->y +
+        original4->y) / 4.0;
+    toBeSet->c = (-original1->y + original2->y - original3->y +
+        original4->y) / 4.0;
+    toBeSet->d = (original1->y - original2->y - original3->y +
+        original4->y) / 4.0;
+}

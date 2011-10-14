@@ -25,3 +25,25 @@ void applyDecompToRGBFloat(int col, int row, A2 toBeFilled,
     toBeSet->blue = 1.0 * original->y + 1.772 * original->pb + 0.0 * 
         original->pr;
 }
+
+void applyDecompToYPP(int col, int row, A2 toBeFilled, 
+    A2Methods_Object* ptr, void* cl) {
+    (void) toBeFilled;
+    struct Closure *mycl = cl;
+    struct YPP* toBeSet = ptr;
+    struct AvgDCT* original = mycl->methods->at(mycl->array, col/2, row/2);
+    if(col%2 == 0 && row%2 == 0) {
+        toBeSet->y = original->a - original->b - original->c + original->d;
+    }
+    else if (col%2 == 1 && row%2 == 0) {
+        toBeSet->y = original->a - original->b + original->c - original->d;
+    }
+    else if (col%2 == 0 && row%2 == 1) {
+        toBeSet->y = original->a + original->b - original->c - original->d;
+    }
+    else {
+        toBeSet->y = original->a + original->b + original->c + original->d;
+    }
+    toBeSet->pb = original->pb;
+    toBeSet->pr = original->pr;
+}
