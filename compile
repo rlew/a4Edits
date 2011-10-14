@@ -16,7 +16,7 @@ CIILIBS=`pkg-config --libs cii40`
 
 # compile and link against course software and netpbm library
 CFLAGS="-I. -I/comp/40/include $CIIFLAGS"
-LIBS="$CIILIBS -arith40 -l40locality -lnetpbm -lm"
+LIBS="$CIILIBS -larith40 -l40locality -lnetpbm -lm"
 LFLAGS="-L/comp/40/lib64"
 
 # these flags max out warnings and debug info

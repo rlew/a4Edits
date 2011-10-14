@@ -9,11 +9,14 @@
 #include "applyCompOrDecomp.h"
 
 
+#define DENOM 256
+
 /* this fn only works with AVG and DCT structs */
 static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     void* cl) {
     (void) col; (void) row; (void) array; (void) cl;
     struct AvgDCT* elem = ptr;
+//    fprintf(stdout, "%f %f %f ", elem->y, elem->pb, elem->pr);
     fprintf(stdout, "%f %f %f %f %f %f\n", elem->pb, elem->pr, elem->a,
                                        elem->b, elem->c, elem->d);
 }
@@ -68,8 +71,17 @@ void compress40(FILE *input) {
                                   sizeof(struct AvgDCT));
     cl.array = yppArray;
     methods->map_default(avgDCTArray, applyCompToAvgDCT, &cl);
+/*
+    A2 avgDCTScaledArray = methods->new(methods->width(avgDCTArray),
+                                        methods->height(avgDCTArray),
+                                        sizeof(struct AvgDCTScaled));
+    cl.array = avgDCTArray;
+    methods->map_default(avgDCTScaledArray, applyCompToAvgDCTScaled, &cl);
 
+    compWrite(avgDCTScaledArray, methods);*/
     compWrite(avgDCTArray, methods);
+//    compWrite(yppArray, methods);
+//    methods->free(&avgDCTScaledArray);
     methods->free(&avgDCTArray);
     methods->free(&yppArray);
     methods->free(&floatArray);
@@ -120,24 +132,30 @@ void decompress40(FILE *input) {
 
     A2 avgDCTArray = methods->new(width, height, sizeof(struct AvgDCT));
     methods->map_default(avgDCTArray, fillToReadArray, input);
+    width = width*2;
+    height = height*2;
+    
 
-    A2 yppArray = methods->new(width*2, height*2, sizeof(struct YPP));
-    struct Closure cl = { methods, avgDCTArray, 255 };
+    A2 yppArray = methods->new(width, height, sizeof(struct YPP));
+//    methods->map_default(yppArray, fillToReadArray, input);
+//    struct Closure cl = { methods, avgDCTArray, 255 };
+    struct Closure cl = { methods, avgDCTArray, DENOM };
     methods->map_default(yppArray, applyDecompToYPP, &cl);
 
-    A2 floatArray = methods->new(width*2, height*2, sizeof(struct rgbFloat));
+    A2 floatArray = methods->new(width, height, sizeof(struct rgbFloat));
+//    struct Closure cl = { methods, yppArray, 255 };
     cl.array = yppArray;
     methods->map_default(floatArray, applyDecompToRGBFloat, &cl);
 
-    A2 intArray = methods->new(width*2, height*2, sizeof(struct Pnm_rgb));
+    A2 intArray = methods->new(width, height, sizeof(struct Pnm_rgb));
     cl.array = floatArray;
     methods->map_default(intArray, applyDecompToRGBInt, &cl);
     
     Pnm_ppm output;
     NEW(output);
-    output->denominator = 255;
-    output->width = width*2;
-    output->height = height*2;
+    output->denominator = DENOM;
+    output->width = width;
+    output->height = height;
     output->pixels = intArray;
     output->methods = methods;
 

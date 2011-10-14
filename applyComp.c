@@ -1,4 +1,5 @@
 #include "applyCompOrDecomp.h"
+#include <math.h>
 
 /* Compression: trimming the image dimesnions to make them even */
 void compTrimPixmap(Pnm_ppm image) {
@@ -11,7 +12,7 @@ void compTrimPixmap(Pnm_ppm image) {
 }
 /* Compression: takes the integer array and float array */
 void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
-                                A2Methods_Object* ptr, void* cl) {
+                                void* ptr, void* cl) {
     (void) toBeFilled;
     struct Closure* mycl = cl;
     struct rgbFloat* toBeSet = ptr;
@@ -22,7 +23,7 @@ void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
     toBeSet->blue = (float)(original->blue) / denom;
 }
 
-void applyCompToYPP(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
+void applyCompToYPP(int col, int row, A2 toBeFilled, void* ptr,
     void* cl) {
     (void) toBeFilled;
     struct Closure* mycl = cl;
@@ -36,7 +37,9 @@ void applyCompToYPP(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
         0.081312 * original->blue;
 }
 
-void applyCompToAvgDCT(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
+/* void *ptr is a struct of AvgDCT to be filled with the calculations
+ * performed on the YPP array in the closure */
+void applyCompToAvgDCT(int col, int row, A2 toBeFilled, void* ptr,
     void* cl) {
     (void) toBeFilled;
     struct Closure* mycl = cl;
@@ -58,4 +61,33 @@ void applyCompToAvgDCT(int col, int row, A2 toBeFilled, A2Methods_Object* ptr,
         original4->y) / 4.0;
     toBeSet->d = (original1->y - original2->y - original3->y +
         original4->y) / 4.0;
+}
+
+static int convertToScaledInt(float num) {
+    int returnIndex = 0;
+    float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
+    -0.14, -0.12, -0.1, -0.08, -0.06, -0.04, -0.02, 0.0, 0.02, 0.04, 0.06,
+    0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.3};
+//    float a[16] = {-0.35, -0.20, -0.15, -0.1, -0.077, -0.055, -0.033, -0.011,
+//    0.011, 0.033, 0.055, 0.077, 0.1, 0.15, 0.2, 0.35};
+    for (int i = 0; i < 31; i++) {
+        if(fabs(num - a[i]) < fabs(num - a[returnIndex])) {
+            returnIndex = i;
+        }
+    }
+    return returnIndex - 15;
+}
+
+void applyCompToAvgDCTScaled(int col, int row, A2 toBeFilled, void* ptr,
+    void* cl) {
+    (void) toBeFilled;
+    struct Closure* mycl = cl;
+    struct AvgDCTScaled* toBeSet = ptr;
+    struct AvgDCT* original = mycl->methods->at(mycl->array, col, row);
+    toBeSet->pb = Arith40_index_of_chroma(original->pb);
+    toBeSet->pr = Arith40_index_of_chroma(original->pr);
+    toBeSet->a = original->a * 511;
+    toBeSet->b = convertToScaledInt(original->b);
+    toBeSet->c = convertToScaledInt(original->c);
+    toBeSet->d = convertToScaledInt(original->d);
 }
