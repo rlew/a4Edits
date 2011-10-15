@@ -71,9 +71,13 @@ void applyCompToAvgDCT(int col, int row, A2 toBeFilled, void* ptr,
  * the range of plus or minus 15. */
 static int convertToScaledInt(float num) {
     int returnIndex = 0;
+    //float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
+    //-0.14, -0.12, -0.1, -0.08, -0.06, -0.04, -0.02, 0.0, 0.02, 0.04, 0.06,
     float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
-    -0.14, -0.12, -0.1, -0.08, -0.06, -0.04, -0.02, 0.0, 0.02, 0.04, 0.06,
-    0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.3};
+    -0.14, -0.12, -0.1, -0.077, -0.055, -0.033, -0.011, 0.0, 0.011, 0.033,
+    0.055, 0.077, 0.1, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 
+    0.3};
+//    float a[16] = {-0.35, -0.20, -0.15, -0.1, -0.077, -0.055, -0.033, -0.011,
 //    float a[16] = {-0.35, -0.20, -0.15, -0.1, -0.077, -0.055, -0.033, -0.011,
 //    0.011, 0.033, 0.055, 0.077, 0.1, 0.15, 0.2, 0.35};
     for (int i = 0; i < 31; i++) {
@@ -94,7 +98,7 @@ void applyCompToAvgDCTScaled(int col, int row, A2 toBeFilled, void* ptr,
     struct AvgDCT* original = mycl->methods->at(mycl->array, col, row);
     toBeSet->pb = Arith40_index_of_chroma(original->pb);
     toBeSet->pr = Arith40_index_of_chroma(original->pr);
-    toBeSet->a = original->a * 511;
+    toBeSet->a = (unsigned)(original->a * 511);
     toBeSet->b = convertToScaledInt(original->b);
     toBeSet->c = convertToScaledInt(original->c);
     toBeSet->d = convertToScaledInt(original->d);

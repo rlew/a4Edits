@@ -9,25 +9,24 @@
 #include "applyCompOrDecomp.h"
 
 
-#define DENOM 254
+#define DENOM 255 
 
 static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     void* cl) {
     (void) col; (void) row; (void) array; (void) cl;
-    struct rgbFloat* elem = ptr;
-    /*struct AvgDCT* elem = ptr;
-    struct YPP* elem = ptr;
-    struct AvgDCTScaled* elem = ptr;
-    */  
+    //struct rgbFloat* elem = ptr;
+    //struct AvgDCT* elem = ptr;
+    //struct YPP* elem = ptr;
+    struct AvgDCTScaled* elem = ptr;  
 
-    fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
-    /*
-    fprintf(stdout, "%d %d %d %d %d %d\n", elem->pb, elem->pr, elem->a,
+    //fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
+    
+    fprintf(stdout, "%u %u %u %d %d %d\n", elem->pb, elem->pr, elem->a,
                                        elem->b, elem->c, elem->d);
-    fprintf(stdout, "%f %f %f ", elem->y, elem->pb, elem->pr);
-    fprintf(stdout, "%f %f %f %f %f %f\n", elem->pb, elem->pr, elem->a,
-                                       elem->b, elem->c, elem->d);
-    */
+    //fprintf(stdout, "%f %f %f ", elem->y, elem->pb, elem->pr);
+    //fprintf(stdout, "%f %f %f %f %f %f\n", elem->pb, elem->pr, elem->a,
+    //                                   elem->b, elem->c, elem->d);
+    
 
 }
 
@@ -71,7 +70,7 @@ void compress40(FILE *input) {
     struct Closure cl = { methods, image->pixels, image->denominator };
     methods->map_default(floatArray, applyCompToRGBFloat, &cl);
 
-    /* Convert from rgbFloat to YPP 
+    // Convert from rgbFloat to YPP 
     A2 yppArray = methods->new(methods->width(floatArray),
                                methods->height(floatArray),
                                sizeof(struct YPP));
@@ -91,18 +90,18 @@ void compress40(FILE *input) {
                                         sizeof(struct AvgDCTScaled));
     cl.array = avgDCTArray;
     methods->map_default(avgDCTScaledArray, applyCompToAvgDCTScaled, &cl);
-    */
+    
 
     /* Writing functions to stdout */
-/*    compWrite(avgDCTScaledArray, methods);
-    compWrite(avgDCTArray, methods);
-    compWrite(yppArray, methods);*/
-    compWrite(floatArray, methods);
+    compWrite(avgDCTScaledArray, methods);
+    //compWrite(avgDCTArray, methods);
+    //compWrite(yppArray, methods);
+    //compWrite(floatArray, methods);
 
     /* Freeing functions */
-    /*methods->free(&avgDCTScaledArray);
+    methods->free(&avgDCTScaledArray);
     methods->free(&avgDCTArray);
-    methods->free(&yppArray);*/
+    methods->free(&yppArray);
     methods->free(&floatArray);
     Pnm_ppmfree(&image);
 }
@@ -117,41 +116,38 @@ static void fillToReadArray(int col, int row, A2 array, A2Methods_Object* ptr,
     (void) col; (void) row; (void) array;
     FILE* input = cl;
 
-    struct rgbFloat* curpix = ptr;
-    /*
+    //struct rgbFloat* curpix = ptr;
     struct AvgDCTScaled* curpix = ptr;
-    struct YPP* curpix = ptr;
-    struct AvgDCT* curpix = ptr;
-    */
-    struct rgbFloat elem;
-    /*
-    struct YPP elem;
+    //struct YPP* curpix = ptr;
+    //struct AvgDCT* curpix = ptr;
+    
+    //struct rgbFloat elem;
+    //struct YPP elem;
     struct AvgDCTScaled elem;
-    struct AvgDCT elem;
-    */
+    //struct AvgDCT elem;
 
-    fscanf(input, "%f", &elem.red);
+/*    fscanf(input, "%f", &elem.red);
     fscanf(input, "%f", &elem.green);
-    fscanf(input, "%f", &elem.blue);
-    /*
-    fscanf(input, "%f", &elem.y);
+    fscanf(input, "%f", &elem.blue);*/
+    
+/*    fscanf(input, "%f", &elem.y);
     fscanf(input, "%f", &elem.pb);
-    fscanf(input, "%f", &elem.pr);
-    *//*
-    fscanf(input, "%d", &elem.pb);
-    fscanf(input, "%d", &elem.pr);
-    fscanf(input, "%d", &elem.a);
+    fscanf(input, "%f", &elem.pr);*/
+    
+    fscanf(input, "%u", &elem.pb);
+    fscanf(input, "%u", &elem.pr);
+    fscanf(input, "%u", &elem.a);
     fscanf(input, "%d", &elem.b);
     fscanf(input, "%d", &elem.c);
     fscanf(input, "%d", &elem.d);
-    *//*
-    fscanf(input, "%f", &elem.pb);
+    
+/*    fscanf(input, "%f", &elem.pb);
     fscanf(input, "%f", &elem.pr);
     fscanf(input, "%f", &elem.a);
     fscanf(input, "%f", &elem.b);
     fscanf(input, "%f", &elem.c);
     fscanf(input, "%f", &elem.d);
-    */
+*/    
     *curpix = elem;
 }
 
@@ -176,30 +172,30 @@ void decompress40(FILE *input) {
     assert(read == 2);
     int c = getc(input);
     assert(c == '\n');
-/*
+
     A2 avgDCTScaled = methods->new(width, height, sizeof(struct AvgDCTScaled));
     A2 avgDCTArray = methods->new(width, height, sizeof(struct AvgDCT));
 
     width = width*2;
     height = height*2;
 
-    A2 yppArray = methods->new(width, height, sizeof(struct YPP));*/
+    A2 yppArray = methods->new(width, height, sizeof(struct YPP));
     A2 floatArray = methods->new(width, height, sizeof(struct rgbFloat));
     A2 intArray = methods->new(width, height, sizeof(struct Pnm_rgb));
 
     /* filling arrays from input */
-    methods->map_default(floatArray, fillToReadArray, input);
-/*    methods->map_default(yppArray, fillToReadArray, input);
-    methods->map_default(avgDCTArray, fillToReadArray, input);
+//    methods->map_default(floatArray, fillToReadArray, input);
+    //methods->map_default(yppArray, fillToReadArray, input);
+    //methods->map_default(avgDCTArray, fillToReadArray, input);
     methods->map_default(avgDCTScaled, fillToReadArray, input);
-*/
+
     /* creating closures used to fill empty arrays */
-  /*  struct Closure cl = { methods, avgDCTScaled, DENOM };
-    struct Closure cl = { methods, avgDCTArray, DENOM };
-    struct Closure cl = { methods, yppArray, DENOM };*/
-    struct Closure cl = { methods, floatArray, DENOM };
-/*
-    cl.array = avgDCTScaled;
+    struct Closure cl = { methods, avgDCTScaled, DENOM };
+    //struct Closure cl = { methods, avgDCTArray, DENOM };
+    //struct Closure cl = { methods, yppArray, DENOM };
+    //struct Closure cl = { methods, floatArray, DENOM };
+
+    //cl.array = avgDCTScaled;
     methods->map_default(avgDCTArray, applyDecompToAvgDCT, &cl);
 
     cl.array = avgDCTArray;
@@ -207,7 +203,7 @@ void decompress40(FILE *input) {
 
     cl.array = yppArray;
     methods->map_default(floatArray, applyDecompToRGBFloat, &cl);
-*/
+
     cl.array = floatArray;
     methods->map_default(intArray, applyDecompToRGBInt, &cl);
 
@@ -224,8 +220,8 @@ void decompress40(FILE *input) {
 
     /* Freeing functions */
     methods->free(&floatArray);
-  /*  methods->free(&yppArray);
+    methods->free(&yppArray);
     methods->free(&avgDCTArray);
-    methods->free(&avgDCTScaled);*/
+    methods->free(&avgDCTScaled);
     Pnm_ppmfree(&output);
 }
