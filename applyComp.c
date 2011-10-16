@@ -1,4 +1,5 @@
 #include "applyCompOrDecomp.h"
+#include "assert.h"
 #include <math.h>
 #include "arith40.h"
 
@@ -20,9 +21,9 @@ void applyCompToRGBFloat(int col, int row, A2 toBeFilled,
     struct rgbFloat* toBeSet = ptr;
     struct Pnm_rgb* original = mycl->methods->at(mycl->array, col, row);
     float denom = (float)mycl->denom;
-    toBeSet->red = (float)(original->red) / denom;
-    toBeSet->green = (float)(original->green) / denom;
-    toBeSet->blue = (float)(original->blue) / denom;
+    toBeSet->red = ((float)original->red) / denom;
+    toBeSet->green = ((float)original->green) / denom;
+    toBeSet->blue = ((float)original->blue) / denom;
 }
 
 /* Compression: void *ptr is a struct of YPP to be filled with the calculations
@@ -70,7 +71,15 @@ void applyCompToAvgDCT(int col, int row, A2 toBeFilled, void* ptr,
 /* Compression: converts the arguments of floats and returns a scaled integer in
  * the range of plus or minus 15. */
 static int convertToScaledInt(float num) {
-    int returnIndex = 0;
+  int scaled = nearbyint(50.0*num);
+  if (scaled > 15)
+    scaled = 15;
+  if (scaled < -15)
+    scaled = -15;
+
+  return scaled;
+}
+/*    int returnIndex = 0;
     //float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
     //-0.14, -0.12, -0.1, -0.08, -0.06, -0.04, -0.02, 0.0, 0.02, 0.04, 0.06,
     float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
@@ -85,13 +94,12 @@ static int convertToScaledInt(float num) {
             returnIndex = i;
         }
     }
-    return returnIndex - 15;
-}
+    return returnIndex - 15;*/
 
 /* Compression: void *ptr is a struct of AvgDCT to be filled with the
  * calculations preformed on the AvgDCTScalled array in the closure. */
 void applyCompToAvgDCTScaled(int col, int row, A2 toBeFilled, void* ptr,
-    void* cl) {
+                              void* cl) {
     (void) toBeFilled;
     struct Closure* mycl = cl;
     struct AvgDCTScaled* toBeSet = ptr;
@@ -102,4 +110,9 @@ void applyCompToAvgDCTScaled(int col, int row, A2 toBeFilled, void* ptr,
     toBeSet->b = convertToScaledInt(original->b);
     toBeSet->c = convertToScaledInt(original->c);
     toBeSet->d = convertToScaledInt(original->d);
+     // assert(toBeSet->b <= 15);
+       // assert( toBeSet->b >= -15);
+    //assert(toBeSet->c <= 15 || toBeSet->c >= -15);
+    //assert(toBeSet->d <= 15);
+    //assert(toBeSet->d >= -15);
 }

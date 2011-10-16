@@ -9,20 +9,11 @@
 #include "applyCompOrDecomp.h"
 
 
-#define DENOM 255
+#define DENOM 65535
 
 static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
-    void* cl) {
+                void* cl) {
     (void) col; (void) row; (void) array; (void) cl;
-    struct rgbFloat* elem = ptr;
-    /*struct AvgDCT* elem = ptr;
-    struct YPP* elem = ptr;
-    struct AvgDCTScaled* elem = ptr;
-    */
-
-    fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
-    /*
-    fprintf(stdout, "%d %d %d %d %d %d\n", elem->pb, elem->pr, elem->a,
     //struct rgbFloat* elem = ptr;
     //struct AvgDCT* elem = ptr;
     //struct YPP* elem = ptr;
@@ -30,11 +21,10 @@ static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
 
     //fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
 
-    fprintf(stdout, "%u %u %u %d %d %d\n", elem->pb, elem->pr, elem->a,
+    fprintf(stdout, "%u %u %u %d %d %d ", elem->pb, elem->pr, elem->a,
                                        elem->b, elem->c, elem->d);
     //fprintf(stdout, "%f %f %f ", elem->y, elem->pb, elem->pr);
-    //fprintf(stdout, "%f %f %f %f %f %f\n", elem->pb, elem->pr, elem->a,
-*/
+    //fprintf(stdout, "%f %f %f %f %f %f", elem->pb, elem->pr, elem->a,
 }
 
 static void compWrite(A2 array, A2Methods_T methods) {
@@ -77,7 +67,6 @@ void compress40(FILE *input) {
     struct Closure cl = { methods, image->pixels, image->denominator };
     methods->map_default(floatArray, applyCompToRGBFloat, &cl);
 
-    /* Convert from rgbFloat to YPP
     // Convert from rgbFloat to YPP
     A2 yppArray = methods->new(methods->width(floatArray),
                                methods->height(floatArray),
@@ -98,19 +87,18 @@ void compress40(FILE *input) {
                                         sizeof(struct AvgDCTScaled));
     cl.array = avgDCTArray;
     methods->map_default(avgDCTScaledArray, applyCompToAvgDCTScaled, &cl);
-    */
 
 
     /* Writing functions to stdout */
-    //compWrite(avgDCTScaledArray, methods);
+    compWrite(avgDCTScaledArray, methods);
     //compWrite(avgDCTArray, methods);
     //compWrite(yppArray, methods);
-    compWrite(floatArray, methods);
+    //compWrite(floatArray, methods);
 
     /* Freeing functions */
-    //methods->free(&avgDCTScaledArray);
-    //methods->free(&avgDCTArray);
-    //methods->free(&yppArray);
+    methods->free(&avgDCTScaledArray);
+    methods->free(&avgDCTArray);
+    methods->free(&yppArray);
     methods->free(&floatArray);
     Pnm_ppmfree(&image);
 }

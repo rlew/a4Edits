@@ -61,18 +61,8 @@ void applyDecompToYPP(int col, int row, A2 toBeFilled,
     toBeSet->pr = original->pr;
 }
 
-static float convertToFloat(int num) {
-    num = num + 15;
-    //float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
-    //-0.14, -0.12, -0.1, -0.08, -0.06, -0.04, -0.02, 0.0, 0.02, 0.04, 0.06,
-    //0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 0.3};
-    float a[31] = {-0.3, -0.28, -0.26, -0.24, -0.22, -0.2, -0.18, -0.16,
-    -0.14, -0.12, -0.1, -0.077, -0.055, -0.033, -0.011, 0.0, 0.011, 0.033,
-    0.055, 0.077, 0.1, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.24, 0.26, 0.28, 
-    0.3};
-    return a[(int)num]; 
-}
-
+/* Decompression: void* ptr is a struct of AvgDCT to be filled with the
+ * calculations performed on the AvgDCTScaled array in the closure */
 void applyDecompToAvgDCT(int col, int row, A2 toBeFilled,
     void* ptr, void* cl) {
     (void) toBeFilled;
@@ -81,8 +71,15 @@ void applyDecompToAvgDCT(int col, int row, A2 toBeFilled,
     struct AvgDCTScaled* original = mycl->methods->at(mycl->array, col, row);
     toBeSet->pb = Arith40_chroma_of_index(original->pb);
     toBeSet->pr = Arith40_chroma_of_index(original->pr);
-    toBeSet->a = (float)(original->a)/511.0;
-    toBeSet->b = convertToFloat(original->b);
-    toBeSet->c = convertToFloat(original->c);
-    toBeSet->d = convertToFloat(original->d);
+    toBeSet->a = ((float)(original->a))/511.0;
+    toBeSet->b = ((float)(original->b))/50.0;
+    toBeSet->c = ((float)(original->c))/50.0;
+    toBeSet->d = ((float)(original->d))/50.0;
+    //if(toBeSet->b > .300000) 
+      //printf("ToBeSet b is: %f, row: %d, col %d\n", toBeSet->b, row, col);
+    //assert(toBeSet->b <= .300000 );
+      //  assert( toBeSet->b >= -.300000);
+    //assert(toBeSet->c <= .300000 || toBeSet->c >= -.300000);
+    //assert(toBeSet->d >= -.300000 || toBeSet->d <= .300000);
 }
+
