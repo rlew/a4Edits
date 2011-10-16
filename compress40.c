@@ -18,7 +18,7 @@ static void applyCompPrint(int col, int row, A2 array, A2Methods_Object* ptr,
     /*struct AvgDCT* elem = ptr;
     struct YPP* elem = ptr;
     struct AvgDCTScaled* elem = ptr;
-    */  
+    */
 
     fprintf(stdout, "%f %f %f ", elem->red, elem->green, elem->blue);
     /*
@@ -71,7 +71,7 @@ void compress40(FILE *input) {
     struct Closure cl = { methods, image->pixels, image->denominator };
     methods->map_default(floatArray, applyCompToRGBFloat, &cl);
 
-    /* Convert from rgbFloat to YPP 
+    /* Convert from rgbFloat to YPP
     A2 yppArray = methods->new(methods->width(floatArray),
                                methods->height(floatArray),
                                sizeof(struct YPP));

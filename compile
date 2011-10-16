@@ -47,7 +47,7 @@ case $link in
 esac
 
 case $link in
-all|test) gcc $FLAGS $LFLAGS -o test 40image.o compress40.o applyComp.o \
+all|40image) gcc $FLAGS $LFLAGS -o 40image 40image.o compress40.o applyComp.o \
               applyDecomp.o a2plain.o uarray2.o \
               $LIBS
 
