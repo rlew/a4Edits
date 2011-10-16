@@ -44,3 +44,5 @@ extern void applyDecompToRGBFloat(int col, int row, A2 toBeFilled,
     void* ptr, void* cl);
 extern void applyDecompToYPP(int col, int row, A2 toBeFilled,
     void* ptr, void* cl);
+extern void applyDecompToAvgDCT(int col, int row,
+    A2 toBeFilled, void* ptr, void* cl);
